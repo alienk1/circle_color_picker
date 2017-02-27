@@ -1,0 +1,15 @@
+{
+  "name": "circle_color_picker",
+  "version": "1.0.0",
+  "description": "circle color picker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "color",
+    "picker"
+  ],
+  "author": "queue",
+  "license": "ISC"
+}
