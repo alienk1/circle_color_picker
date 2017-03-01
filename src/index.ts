@@ -20,7 +20,6 @@ export class CoreColorPicker {
     colorHex: string;
     colorRgb: number[];
     config: Config;
-    private _downValid: boolean;
 
     constructor(elem) {
         this.config = new Config(elem);
@@ -31,7 +30,6 @@ export class CoreColorPicker {
 
         this.context = this.canvas.getContext('2d');
         this.image = new Image();
-        this._downValid = false;
         this.init();
     }
     
@@ -43,32 +41,26 @@ export class CoreColorPicker {
 
 
         this.canvas.onclick = e => {
-            this._func(e).then(
-                () => {
-                    this._start("colorClick");
-                },
-                () => {}
-            );
-            this._downValid = false;
+            this._func(e).then(() => { this._start("colorClick") }, () => {});
         };
 
-        this.canvas.onmousedown = e => {
-            this._downValid = true;
+        this.canvas.onmousedown = () => {
+            this.canvas.onmousemove = e => {
+                this._func(e).then(() => { this._start("colorMove") }, () => {});
+            };
+            document.onmouseup = () => {
+                document.onmouseup = this.canvas.onmousemove = null;
+            };
         };
 
-        document.onmouseup = () => {
-            this._downValid = false;
-        };
 
-        this.canvas.onmousemove = e => {
-            if(this._downValid) {
-                this._func(e).then(
-                    () => {
-                        this._start("colorMove");
-                    },
-                    () => {}
-                );
-            }
+        this.cursor.onmousedown = () => {
+            this.canvas.onmousemove = e => {
+                this._func(e).then(() => { this._start("colorMove") }, () => {});
+            };
+            document.onmouseup = () => {
+                document.onmouseup = this.canvas.onmousemove = null;
+            };
         };
 
     }
@@ -104,7 +96,7 @@ export class CoreColorPicker {
 
         this.parentCanvas.insertBefore(this.cursor, this.canvas);
     }
-
+    
     private _func(e) : Promise {
         let r = this.canvas.width / 2;
         return new Promise((resolve, reject) => {
