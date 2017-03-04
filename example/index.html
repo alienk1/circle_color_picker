@@ -28,9 +28,9 @@
     <script>
         var picker = new CoreColorPicker('rgb-color-picker-full',
             {
-                width: "300px",
-                height: "300px",
-                img: "ring"         //circle_white | circle_full | ring | null
+                width: "600px",
+                height: "600px",
+                img: "ring_full"         //circle_white | circle_full | ring_full | ring_transparent | null
             });
         picker.colorClick(function(event) {
             document.getElementsByClassName('rgb-color-picker-full-click')[0].style.background = event.detail.colorHex;

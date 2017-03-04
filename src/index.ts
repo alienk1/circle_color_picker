@@ -21,9 +21,12 @@ class Config {
         switch(img) {
             case 'circle_white':
                 return "../assets/img/rgb_circle_white_1000_1000.png";
-            case 'ring':
+            case 'ring_full':
                 this.ring = true;
-                return "../assets/img/rgb_circle_full_1000_1000.png";
+                return "../assets/img/rgb_ring_full_1000_1000.png";
+            case 'ring_transparent':
+                this.ring = true;
+                return "../assets/img/rgb_ring_transparent_1000_1000.png";
             case 'circle_full': default:
                 return "../assets/img/rgb_circle_full_1000_1000.png";
         }
@@ -50,11 +53,11 @@ export class CoreColorPicker {
         this.init();
         this._resize();
     }
-    
+
     private init() {
         this._createParent(this.config.elem);
         this._createCursor();
-        this._setCursor(this.canvas.width / 2 - 6, this.canvas.height / 2 - 6);
+        this._setCursor(this.canvas.width / 2 - (this.canvas.width < 300 ? 6 : 10), this.canvas.height / 2 - (this.canvas.width < 300 ? 6 : 10));
 
         this.context = this.canvas.getContext('2d');
         this.image = new Image();
@@ -113,11 +116,11 @@ export class CoreColorPicker {
     private _createCursor() {
         this.cursor = document.createElement('div');
         this.cursor.style.position = 'absolute';
-        this.cursor.style.width = '8px';
-        this.cursor.style.height = '8px';
+        this.cursor.style.width = (this.canvas.width < 300 ? 8 : 14) + 'px';
+        this.cursor.style.height = (this.canvas.width < 300 ? 8 : 14) + 'px';
         this.cursor.style.backgroundColor = 'transparent';
         this.cursor.style.borderRadius = '50%';
-        this.cursor.style.border = '2px solid white';
+        this.cursor.style.border = (this.canvas.width < 300 ? 2 : 4) + 'px solid white';
 
         this.parentCanvas.insertBefore(this.cursor, this.canvas);
     }
@@ -135,7 +138,7 @@ export class CoreColorPicker {
                 this.colorRgb = [pix[0], pix[1], pix[2]];
                 this.colorHex = '#' + this.toHex(pix[0], pix[1], pix[2]);
 
-                this._setCursor(xy[0] - 6, xy[1] - 6);
+                this._setCursor(xy[0] - (this.canvas.width < 300 ? 6 : 10), xy[1] - (this.canvas.width < 300 ? 6 : 10));
                 resolve(true);
             }
         });
@@ -147,8 +150,8 @@ export class CoreColorPicker {
             vector2: number[] = [e.offsetX - this.canvas.width / 2, e.offsetY - this.canvas.height / 2],
             cos = (vector1[0] * vector2[0] + vector1[1] * vector2[1]) /
             (Math.sqrt(Math.pow(vector1[0], 2) + Math.pow(vector1[1], 2)) * Math.sqrt(Math.pow(vector2[0], 2) + Math.pow(vector2[1], 2))),
-            orX = r * (cos + 1),
-            orY = Math.sqrt(Math.pow(r, 2) - Math.pow(orX - this.canvas.width / 2, 2)) * (e.offsetY > this.canvas.height / 2 ? 1 : -1) + this.canvas.height / 2;
+            orX = .88 * r * cos + r,
+            orY = Math.sqrt(Math.pow(.88 * r, 2) - Math.pow(orX - this.canvas.width / 2, 2)) * (e.offsetY > this.canvas.height / 2 ? 1 : -1) + this.canvas.height / 2;
         return [orX, orY];
     }
 
