@@ -17,7 +17,6 @@ var CoreColorPicker = (function () {
         this._setCursor(this.config.width / 2 - 6, this.config.height / 2 - 6);
         this.context = this.canvas.getContext('2d');
         this.image = new Image();
-        this._downValid = false;
         this.init();
     }
     CoreColorPicker.prototype.init = function () {
@@ -27,23 +26,23 @@ var CoreColorPicker = (function () {
         };
         this.image.src = this.config.img;
         this.canvas.onclick = function (e) {
-            _this._func(e).then(function () {
-                _this._start("colorClick");
-            }, function () { });
-            _this._downValid = false;
+            _this._func(e).then(function () { _this._start("colorClick"); }, function () { });
         };
-        this.canvas.onmousedown = function (e) {
-            _this._downValid = true;
+        this.canvas.onmousedown = function () {
+            _this.canvas.onmousemove = function (e) {
+                _this._func(e).then(function () { _this._start("colorMove"); }, function () { });
+            };
+            document.onmouseup = function () {
+                document.onmouseup = _this.canvas.onmousemove = null;
+            };
         };
-        document.onmouseup = function () {
-            _this._downValid = false;
-        };
-        this.canvas.onmousemove = function (e) {
-            if (_this._downValid) {
-                _this._func(e).then(function () {
-                    _this._start("colorMove");
-                }, function () { });
-            }
+        this.cursor.onmousedown = function () {
+            _this.canvas.onmousemove = function (e) {
+                _this._func(e).then(function () { _this._start("colorMove"); }, function () { });
+            };
+            document.onmouseup = function () {
+                document.onmouseup = _this.canvas.onmousemove = null;
+            };
         };
     };
     CoreColorPicker.prototype.colorClick = function (func) {

@@ -2,12 +2,32 @@
 //import 'style-loader!./style.css';
 
 class Config {
-    public  width: number = 300;
-    public height: number = 300;
-    public img: string = "../assets/img/rgb_circle_full_1000_1000.png";
+    public width: string;
+    public height: string;
+    public img: string;
+    public ring: boolean;
     constructor(
         public elem: any
     ) {}
+    setData(data : any) {
+        if(data) {
+            this.ring = false;
+            this.width = data.width || '100%';
+            this.height = data.height || '100%';
+            this.img = this.setImg(data.img) || this.setImg('default');
+        }
+    }
+    setImg(img: string) {
+        switch(img) {
+            case 'circle_white':
+                return "../assets/img/rgb_circle_white_1000_1000.png";
+            case 'ring':
+                this.ring = true;
+                return "../assets/img/rgb_circle_full_1000_1000.png";
+            case 'circle_full': default:
+                return "../assets/img/rgb_circle_full_1000_1000.png";
+        }
+    }
 }
 
 export class CoreColorPicker {
@@ -20,22 +40,25 @@ export class CoreColorPicker {
     colorHex: string;
     colorRgb: number[];
     config: Config;
-    private _downValid: boolean;
+    cursorX: number;
+    cursorY: number;
 
-    constructor(elem) {
+    constructor(elem, config?: any) {
         this.config = new Config(elem);
+        this.config.setData(config);
 
-        this._createParent(this.config.elem);
-        this._createCursor();
-        this._setCursor(this.config.width / 2 - 6, this.config.height / 2 - 6);
-
-        this.context = this.canvas.getContext('2d');
-        this.image = new Image();
-        this._downValid = false;
         this.init();
+        this._resize();
     }
     
     private init() {
+        this._createParent(this.config.elem);
+        this._createCursor();
+        this._setCursor(this.canvas.width / 2 - 6, this.canvas.height / 2 - 6);
+
+        this.context = this.canvas.getContext('2d');
+        this.image = new Image();
+
         this.image.onload = () => {
             this.context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
         };
@@ -43,32 +66,25 @@ export class CoreColorPicker {
 
 
         this.canvas.onclick = e => {
-            this._func(e).then(
-                () => {
-                    this._start("colorClick");
-                },
-                () => {}
-            );
-            this._downValid = false;
+            this._func(e).then(() => { this._start("colorClick") }, () => {});
         };
 
-        this.canvas.onmousedown = e => {
-            this._downValid = true;
+        this.canvas.onmousedown = () => {
+            this.canvas.onmousemove = e => {
+                this._func(e).then(() => { this._start("colorMove") }, () => {});
+            };
+            document.onmouseup = () => {
+                document.onmouseup = this.canvas.onmousemove = null;
+            };
         };
 
-        document.onmouseup = () => {
-            this._downValid = false;
-        };
-
-        this.canvas.onmousemove = e => {
-            if(this._downValid) {
-                this._func(e).then(
-                    () => {
-                        this._start("colorMove");
-                    },
-                    () => {}
-                );
-            }
+        this.cursor.onmousedown = () => {
+            this.canvas.onmousemove = e => {
+                this._func(e).then(() => { this._start("colorMove") }, () => {});
+            };
+            document.onmouseup = () => {
+                document.onmouseup = this.canvas.onmousemove = null;
+            };
         };
 
     }
@@ -83,13 +99,14 @@ export class CoreColorPicker {
 
     private _createParent(elem) {
         let superParent = document.getElementById(elem);
+        this.parentCanvas ? superParent.removeChild(this.parentCanvas) : null;
         this.parentCanvas = document.createElement('div');
-        this.parentCanvas.style.width = this.config.width + 'px';
-        this.parentCanvas.style.height = this.config.height + 'px';
+        this.parentCanvas.style.width = this.config.width;
+        this.parentCanvas.style.height = this.config.height;
         superParent.appendChild(this.parentCanvas);
         this.canvas = document.createElement('canvas');
-        this.canvas.width = this.config.width;
-        this.canvas.height = this.config.height;
+        this.canvas.width = this.canvas.height = this.parentCanvas.offsetWidth;
+        //this.canvas.height = this.parentCanvas.width;
         this.parentCanvas.appendChild(this.canvas);
     }
 
@@ -113,19 +130,31 @@ export class CoreColorPicker {
             }
             else {
 
-                let x = e.offsetX;
-                let y = e.offsetY;
-                let pix = this.context.getImageData(x, y, 1, 1).data;
+                let xy = this.config.ring ? this._ring(e) : [e.offsetX, e.offsetY];
+                let pix = this.context.getImageData(xy[0], xy[1], 1, 1).data;
                 this.colorRgb = [pix[0], pix[1], pix[2]];
                 this.colorHex = '#' + this.toHex(pix[0], pix[1], pix[2]);
 
-                this._setCursor(x - 6, y - 6);
+                this._setCursor(xy[0] - 6, xy[1] - 6);
                 resolve(true);
             }
         });
     }
 
+    private _ring(e) : number[] {
+        let r = this.canvas.width / 2,
+            vector1: number[] = [this.canvas.width - this.canvas.width / 2, 0],
+            vector2: number[] = [e.offsetX - this.canvas.width / 2, e.offsetY - this.canvas.height / 2],
+            cos = (vector1[0] * vector2[0] + vector1[1] * vector2[1]) /
+            (Math.sqrt(Math.pow(vector1[0], 2) + Math.pow(vector1[1], 2)) * Math.sqrt(Math.pow(vector2[0], 2) + Math.pow(vector2[1], 2))),
+            orX = r * (cos + 1),
+            orY = Math.sqrt(Math.pow(r, 2) - Math.pow(orX - this.canvas.width / 2, 2)) * (e.offsetY > this.canvas.height / 2 ? 1 : -1) + this.canvas.height / 2;
+        return [orX, orY];
+    }
+
     private _setCursor(x: number, y: number) {
+        this.cursorX = x;
+        this.cursorY = y;
         this.cursor.style.marginTop = y + 'px';
         this.cursor.style.marginLeft = x + 'px';
     }
@@ -135,6 +164,11 @@ export class CoreColorPicker {
             detail: { colorRbg: this.colorRgb, colorHex: this.colorHex }
         });
         this.canvas.dispatchEvent(event);
+    }
+
+    protected _resize() {
+        if(this.config.width.indexOf('%') != -1)
+            window.onresize = () => { this.init() };
     }
 
     private toHex(r, g, b) {

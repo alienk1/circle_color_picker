@@ -10,7 +10,7 @@
             text-align: center;
         }
         #rgb-color-picker-full {
-            margin: 20px auto;
+            margin: 20px;
         }
         .rgb-color-picker-full-click, .rgb-color-picker-full-move {
             width: 50px;
@@ -26,11 +26,16 @@
     <div class="rgb-color-picker-full-click"></div>
     <div class="rgb-color-picker-full-move"></div>
     <script>
-        var v = new CoreColorPicker('rgb-color-picker-full');
-        v.colorClick(function(event) {
+        var picker = new CoreColorPicker('rgb-color-picker-full',
+            {
+                width: "300px",
+                height: "300px",
+                img: "ring"         //circle_white | circle_full | ring | null
+            });
+        picker.colorClick(function(event) {
             document.getElementsByClassName('rgb-color-picker-full-click')[0].style.background = event.detail.colorHex;
         });
-        v.colorMove(function (event) {
+        picker.colorMove(function (event) {
             document.getElementsByClassName('rgb-color-picker-full-move')[0].style.background = event.detail.colorHex;
         });
     </script>
