@@ -1,6 +1,4 @@
 
-//import 'style-loader!./style.css';
-
 class Config {
     public width: string;
     public height: string;
@@ -46,7 +44,7 @@ export class CoreColorPicker {
     cursorX: number;
     cursorY: number;
 
-    constructor(elem, config?: any) {
+    constructor(elem: any, config?: any) {
         this.config = new Config(elem);
         this.config.setData(config);
 
@@ -68,12 +66,12 @@ export class CoreColorPicker {
         this.image.src = this.config.img;
 
 
-        this.canvas.onclick = e => {
+        this.canvas.onclick = (e : any) => {
             this._func(e).then(() => { this._start("colorClick") }, () => {});
         };
 
         this.canvas.onmousedown = () => {
-            this.canvas.onmousemove = e => {
+            this.canvas.onmousemove = (e: any) => {
                 this._func(e).then(() => { this._start("colorMove") }, () => {});
             };
             document.onmouseup = () => {
@@ -82,7 +80,7 @@ export class CoreColorPicker {
         };
 
         this.cursor.onmousedown = () => {
-            this.canvas.onmousemove = e => {
+            this.canvas.onmousemove = (e: any) => {
                 this._func(e).then(() => { this._start("colorMove") }, () => {});
             };
             document.onmouseup = () => {
@@ -92,15 +90,15 @@ export class CoreColorPicker {
 
     }
 
-    colorClick(func) {
+    colorClick(func: any) {
         this.canvas.addEventListener("colorClick", func, false);
     }
 
-    colorMove(func) {
+    colorMove(func: any) {
         this.canvas.addEventListener("colorMove", func, false);
     }
 
-    private _createParent(elem) {
+    private _createParent(elem: any) {
         let superParent = document.getElementById(elem);
         this.parentCanvas ? superParent.removeChild(this.parentCanvas) : null;
         this.parentCanvas = document.createElement('div');
@@ -109,13 +107,22 @@ export class CoreColorPicker {
         superParent.appendChild(this.parentCanvas);
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.canvas.height = this.parentCanvas.offsetWidth;
-        //this.canvas.height = this.parentCanvas.width;
+        this.canvas.onmousemove = (e: any) => {
+            let r = this.canvas.width / 2;
+            if(Math.pow(r - e.offsetX, 2) + Math.pow(r - e.offsetY, 2) < Math.pow(r, 2))
+                this.canvas.style.cursor = 'move';
+            else
+                this.canvas.style.cursor = 'default';
+        };
         this.parentCanvas.appendChild(this.canvas);
     }
 
     private _createCursor() {
         this.cursor = document.createElement('div');
         this.cursor.style.position = 'absolute';
+        this.cursor.onmouseover = () => {
+            this.cursor.style.cursor = 'pointer';
+        };
         this.cursor.style.width = (this.canvas.width < 300 ? 8 : 14) + 'px';
         this.cursor.style.height = (this.canvas.width < 300 ? 8 : 14) + 'px';
         this.cursor.style.backgroundColor = 'transparent';
@@ -125,7 +132,7 @@ export class CoreColorPicker {
         this.parentCanvas.insertBefore(this.cursor, this.canvas);
     }
 
-    private _func(e) : Promise {
+    private _func(e: any) : Promise<boolean> {
         let r = this.canvas.width / 2;
         return new Promise((resolve, reject) => {
             if(Math.pow(r - e.offsetX, 2) + Math.pow(r - e.offsetY, 2) >= Math.pow(r, 2)) {
@@ -144,7 +151,7 @@ export class CoreColorPicker {
         });
     }
 
-    private _ring(e) : number[] {
+    private _ring(e: any) : number[] {
         let r = this.canvas.width / 2,
             vector1: number[] = [this.canvas.width - this.canvas.width / 2, 0],
             vector2: number[] = [e.offsetX - this.canvas.width / 2, e.offsetY - this.canvas.height / 2],
@@ -174,15 +181,15 @@ export class CoreColorPicker {
             window.onresize = () => { this.init() };
     }
 
-    private toHex(r, g, b) {
-        r = r.toString(16);
-        g = g.toString(16);
-        b = b.toString(16);
+    private toHex(r: number, g: number, b: number) {
+        let R = r.toString(16),
+        G = g.toString(16),
+        B = b.toString(16);
 
-        if(r.length == 1) r = '0' + r;
-        if(g.length == 1) g = '0' + g;
-        if(b.length == 1) b = '0' + b;
+        if(R.length == 1) R = '0' + R;
+        if(G.length == 1) G = '0' + G;
+        if(B.length == 1) B = '0' + B;
 
-        return (r + g + b).toUpperCase();
+        return (R + G + B).toUpperCase();
     }
 }

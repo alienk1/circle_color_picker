@@ -1,4 +1,3 @@
-"use strict";
 var Config = (function () {
     function Config(elem) {
         this.elem = elem;
@@ -156,5 +155,4 @@ var CoreColorPicker = (function () {
     };
     return CoreColorPicker;
 }());
-exports.CoreColorPicker = CoreColorPicker;
 //# sourceMappingURL=index.js.map
