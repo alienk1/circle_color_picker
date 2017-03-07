@@ -1,14 +1,19 @@
 # circle_color_picker
 ==============
 
+```npm i circle_color_picker --save-dev```
+
 parameters default
 
-```var picker = new CoreColorPicker('id_element');```
+```js
+var picker = new CoreColorPicker('id_element');
+```
 
 
 set parameters
 
-```var picker = new CoreColorPicker('id_element',
+```js
+var picker = new CoreColorPicker('id_element',
        {
            width: "300px",      // px || %
            height: "300px",     // px || %
@@ -21,4 +26,5 @@ set parameters
    picker.colorMove(function (event) {
        // string    -> event.detail.colorHex 
        // int[]     -> event.detail.colorRbg
-   });```
+   });
+   ```
