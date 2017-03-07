@@ -8,13 +8,17 @@ System.register("index", [], function (exports_1, context_1) {
             Config = (function () {
                 function Config(elem) {
                     this.elem = elem;
+                    this.ring = false;
                 }
                 Config.prototype.setData = function (data) {
                     if (data) {
-                        this.ring = false;
                         this.width = data.width || '100%';
                         this.height = data.height || '100%';
                         this.img = this.setImg(data.img) || this.setImg('default');
+                    }
+                    else {
+                        this.width = this.height = '100%';
+                        this.img = this.setImg('default');
                     }
                 };
                 Config.prototype.setImg = function (img) {

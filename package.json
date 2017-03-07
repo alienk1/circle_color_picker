@@ -1,8 +1,9 @@
 {
   "name": "circle_color_picker",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "circle color picker",
   "main": "index.js",
+  "repository": "alienk1/circle_color_picker",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

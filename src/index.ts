@@ -6,13 +6,18 @@ class Config {
     public ring: boolean;
     constructor(
         public elem: any
-    ) {}
+    ) {
+        this.ring = false;
+    }
     setData(data : any) {
         if(data) {
-            this.ring = false;
             this.width = data.width || '100%';
             this.height = data.height || '100%';
             this.img = this.setImg(data.img) || this.setImg('default');
+        }
+        else {
+            this.width = this.height = '100%';
+            this.img = this.setImg('default');
         }
     }
     setImg(img: string) {
