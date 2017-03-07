@@ -104,7 +104,7 @@ export class CoreColorPicker {
     }
 
     private _createParent(elem: any) {
-        let superParent = document.getElementById(elem);
+        let superParent = elem;
         this.parentCanvas ? superParent.removeChild(this.parentCanvas) : null;
         this.parentCanvas = document.createElement('div');
         this.parentCanvas.style.width = this.config.width;

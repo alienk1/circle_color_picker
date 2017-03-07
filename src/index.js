@@ -78,7 +78,7 @@ var CoreColorPicker = (function () {
     };
     CoreColorPicker.prototype._createParent = function (elem) {
         var _this = this;
-        var superParent = document.getElementById(elem);
+        var superParent = elem;
         this.parentCanvas ? superParent.removeChild(this.parentCanvas) : null;
         this.parentCanvas = document.createElement('div');
         this.parentCanvas.style.width = this.config.width;
